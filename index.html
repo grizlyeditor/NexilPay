@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexi Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switch-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .dashboard {
+            display: none;
+            padding: 20px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .currency-converter {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .converter-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .converter-row input {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        .send-form, .redeem-form, .create-redeem-form {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .transaction-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login/Register Section -->
+        <div id="auth-section">
+            <div class="header">
+                <div class="logo">NEXI</div>
+                <div class="subtitle">Secure Digital Wallet</div>
+            </div>
+            
+            <div class="form-container">
+                <!-- Login Form -->
+                <div id="login-form">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Login to Your Wallet</h2>
+                    <div class="input-group">
+                        <input type="text" id="login-cnic" placeholder="Enter your CNIC" required>
+                    </div>
+                    <div class="input-group password-container">
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                        <span class="toggle-password" onclick="togglePassword('login-password')">
+                            <i class="far fa-eye"></i>
+                        </span>
+                    </div>
+                    <button onclick="login()">Login</button>
+                    <div class="switch-text">
+                        Don't have an account? <a href="#" onclick="showRegister()">Register</a>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="hidden">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Create New Wallet</h2>
+                    <div class="input-group">
+                        <input type="text" id="reg-cnic" placeholder="Enter CNIC" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="reg-username" placeholder="Choose Username" required>
+                    </div>
+                    <div class="user-info">
+                        <div class="info-row">
+                            <span>Your CNIC:</span>
+                            <span id="display-cnic">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Your Password:</span>
+                            <span id="display-password">-</span>
+                        </div>
+                    </div>
+                    <button onclick="register()">Create Wallet</button>
+                    <div class="switch-text">
+                        Already have an account? <a href="#" onclick="showLogin()">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="dashboard hidden">
+            <div class="header" style="border-radius: 0; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="logo" style="font-size: 1.8rem;">NEXI WALLET</div>
+                        <div class="subtitle" id="welcome-text">Welcome!</div>
+                    </div>
+                    <button onclick="logout()" style="width: auto; padding: 8px 15px; background: rgba(255,255,255,0.2);">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="balance-card">
+                <div class="balance-label">USD BALANCE</div>
+                <div class="balance-amount" id="usd-balance">$0.00</div>
+                <div class="balance-label">RON BALANCE</div>
+                <div class="balance-amount" id="ron-balance">0.00 RON</div>
+            </div>
+
+            <!-- Currency Converter -->
+            <div class="currency-converter">
+                <h3 style="margin-bottom: 15px; color: #333;">Currency Converter</h3>
+                <div class="converter-row">
+                    <span>USD</span>
+                    <input type="number" id="usd-input" placeholder="Enter USD" step="0.01" min="0">
+                    <span>→</span>
+                    <input type="number" id="ron-output" placeholder="RON" readonly>
+                    <span>RON</span>
+                </div>
+                <small>1 USD = 0.56 RON</small>
+            </div>
+
+            <!-- User Information -->
+            <div class="user-info">
+                <h3 style="margin-bottom: 15px; color: #333;">Account Information</h3>
+                <div class="info-row">
+                    <span>CNIC:</span>
+                    <span id="user-cnic">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Username:</span>
+                    <span id="user-username">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Password:</span>
+                    <span id="user-password">••••••••</span>
+                    <span class="toggle-password" onclick="toggleUserPassword()">
+                        <i class="far fa-eye"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button onclick="showSendForm()">Send Money</button>
+                <button onclick="showDepositForm()">Deposit</button>
+            </div>
+
+            <!-- Send Money Form -->
+            <div id="send-form" class="send-form hidden">
+                <h3>Send Money</h3>
+                <div class="input-group">
+                    <input type="text" id="receiver" placeholder="Enter Username or CNIC" required>
+                </div>
+                <div class="input-group">
+                    <select id="send-currency" style="width: 100%; padding: 15px; border-radius: 10px;">
+                        <option value="USD">USD</option>
+                        <option value="RON">RON</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="send-amount" placeholder="Amount" step="0.01" min="0" required>
+                </div>
+                <button onclick="sendMoney()">Send</button>
+                <button onclick="hideSendForm()" style="background: #666; margin-top: 10px;">Cancel</button>
+            </div>
+
+            <!-- Deposit Form -->
+            <div id="deposit-form" class="redeem-form hidden">
+                <h3>Deposit Options</h3>
+                <div class="action-buttons">
+                    <button onclick="showCreateRedeem()">Create Redeem Code</button>
+                    <button onclick="showRedeemCode()">Redeem Code</button>
+                </div>
+                <button onclick="hideDepositForm()" style="background: #666; margin-top: 10px;">Back</button>
+            </div>
+
+            <!-- Create Redeem Code Form -->
+            <div id="create-redeem-form" class="create-redeem-form hidden">
+                <h3>Create Redeem Code</h3>
+                <div class="input-group">
+                    <select id="redeem-currency" style="width: 100%; padding: 15px; border-radius: 10px;">
+                        <option value="USD">USD</option>
+                        <option value="RON">RON</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="redeem-amount" placeholder="Amount" step="0.01" min="0" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="generated-code" placeholder="Code will appear here" readonly>
+                </div>
+                <button onclick="generateRedeemCode()">Generate Code</button>
+                <button onclick="hideCreateRedeem()" style="background: #666; margin-top: 10px;">Back</button>
+            </div>
+
+            <!-- Redeem Code Form -->
+            <div id="redeem-code-form" class="redeem-form hidden">
+                <h3>Redeem Code</h3>
+                <div class="input-group">
+                    <input type="text" id="code-input" placeholder="Enter redeem code" required>
+                </div>
+                <button onclick="redeemCode()">Redeem</button>
+                <button onclick="hideRedeemCode()" style="background: #666; margin-top: 10px;">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Transaction Details</h3>
+            <div id="transaction-details" class="transaction-details">
+                <!-- Transaction details will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="wallet.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
